@@ -1,7 +1,10 @@
 # EduVanta AI
 
 > "Your AI knows what you should learn next."
-> LINK - eduvanta-eight.vercel.app
+>
+> ## 🚀 Live Demo
+
+[🌐 Open EduVanta](https://eduvanta-eight.vercel.app)
 
 An AI-native learning platform built around **Learning Intelligence**: a
 continuously-updated model of what a student actually understands — not
