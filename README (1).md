@@ -1,262 +1,563 @@
-EduVanta — AI-Powered Learning Platform
-> \*\*Learn smarter. Practice adaptively. Understand your mistakes.\*\*
->
-> EduVanta is an AI-powered learning platform built around \*learning intelligence\*: helping learners understand what they know, identify gaps, and decide what to study next.
-🌐 Website: edu-vanta.in  
-🚀 Live app: EduVanta on Vercel
----
-Contents
-What is EduVanta?
-Features
-How the learning loop works
-Technology stack
-Application routes
-Getting started
-Environment variables
-Database setup
-Useful commands
-Architecture and documentation
-Security and responsible use
-Deployment checklist
-Project status
-What is EduVanta?
-Most learning platforms follow a simple pattern: course → content → test → score.
-EduVanta aims to make learning more responsive:
-Learn → Practice → Understand mistakes → Measure mastery → Adapt → Improve
-The platform combines adaptive practice, an AI tutor named Nova, study planning, exam simulation, course-material retrieval, and progress analytics in one experience.
-Features
-🧠 Nova AI Tutor
-Conversational AI tutoring with persisted conversation history.
-Uses the learner's current topic and relevant uploaded learning material when available.
-Supports configurable AI providers.
-Includes retry-friendly error handling so a failed response does not silently lose the learner's message.
-Applies usage quotas and rate limits to AI-powered operations.
-🎯 Adaptive practice
-Topic-based question practice with adaptive difficulty.
-Learners can continue practising instead of being restricted to a short fixed session.
-Server-side answer checking; the client does not decide whether an answer is correct.
-Feedback and mistake analysis after submissions.
-Keyboard support: `1`–`4` to choose an answer and `Enter` to submit/continue.
-Validated question-generation workflow when a configured AI provider is available, with safe fallback behaviour.
-📚 Learning Hub and course materials
-Topic lesson pages with core ideas, examples, checklists, and direct practice actions.
-Course catalogue and enrolment flows.
-Upload PDF, TXT, and Markdown learning material (up to 15 MB per file).
-Text extraction, chunking, embeddings, and relevance-filtered retrieval to ground Nova's answers in uploaded material when relevant.
-Material deletion permissions for the uploader and authorised staff.
-🗓️ Personal study planner
-Onboarding captures learning goals, subjects, level, study time, and exam target when applicable.
-Creates a study plan from the learner's selected subjects and topics.
-Prioritises weak or unattempted topics and schedules revision.
-Reschedules missed sessions based on priority rather than endlessly pushing every missed task forward.
-📝 Exam simulator
-Timed exams with question navigation and mark-for-review.
-Answers are saved as the learner progresses.
-In-progress exams can resume after a refresh using server-stored state and deadlines.
-Results include score and topic/difficulty breakdowns.
-A report highlights patterns that may have cost marks; numerical scoring is calculated by application logic, not invented by the AI.
-🧩 Mistake Vault and mastery tracking
-Stores recurring mistakes and groups them by concept.
-Tracks mistake occurrence and resolution.
-Offers a targeted mini-lesson and additional practice for recurring mistakes.
-Mastery combines signals such as accuracy, recency, difficulty, consistency, and repeated mistakes rather than relying only on a raw correct-answer percentage.
-Exam readiness is an internal learning indicator, not a guarantee of exam results.
-👩‍🏫 Teacher tools
-Teacher dashboard with class-level topic mastery insights.
-Identifies class-wide weak topics using group-level signals rather than reacting to one student's result.
-Creates assignments within courses the teacher owns.
-Generates remedial practice through the same question validation pipeline used elsewhere in the app.
-📈 Progress, focus, and engagement
-Dashboard with study activity, recommendations, mastery, and learning progress.
-Analytics and profile pages.
-Focus Mode with a session summary.
-Daily streaks, achievement signals, and in-app notifications with duplicate prevention.
-🛡️ Admin and platform operations
-Role-based student, teacher, and admin access.
-Admin views for users, learning content, payments, and system-health signals.
-Package and payment flows with manual UPI/UTR verification and an admin review step.
-Audit records for selected sensitive actions, including payment decisions and assignment creation.
-Health endpoint and production-oriented security/rate-limit controls.
-> Feature availability depends on correct environment configuration, database migrations, AI provider credentials, and role permissions.
-How the learning loop works
-Set a goal — complete onboarding and choose subjects, target, and study availability.
-Learn a concept — use topic lessons and, where useful, uploaded course material.
-Practise — answer questions whose difficulty can respond to recent performance.
-Review mistakes — inspect feedback and revisit recurring concepts in the Mistake Vault.
-Measure progress — mastery, streaks, analytics, and exam reports provide feedback.
-Adapt the plan — use recommendations and the planner to focus on the next highest-value topic.
-Technology stack
-Area	Technology
-Application	Next.js 14 App Router, React 18, TypeScript
-Styling and UI	Tailwind CSS, Lucide icons
-Authentication	Supabase Auth with `@supabase/ssr`
-Database	PostgreSQL
-ORM and migrations	Prisma 5
-AI providers	Anthropic, OpenAI, Gemini; Groq support is also represented in environment configuration
-Retrieval	Text chunking, embeddings, PostgreSQL `pgvector` retrieval, lexical fallback
-Validation	Zod
-Visualisations	Recharts
-Maths and content rendering	KaTeX, React Markdown, remark/rehype plugins
-Testing	Vitest
-Hosting	Vercel or another compatible Node.js host
-Application routes
-Route	Purpose
-`/`	Entry point and onboarding-aware landing flow
-`/onboarding`	Learner setup and initial study plan
-`/dashboard`	Learning overview and recommendations
-`/learn`	Enrolled learning content
-`/learn/catalog`	Course catalogue
-`/learn/\[topicId]`	Topic lesson
-`/practice`	Practice hub
+ <div align="center">
 
-`/practice/\[topicId]`	Topic-based adaptive practice
-`/tutor`	Nova AI Tutor
-`/planner`	Study planning and rescheduling
-`/exam/\[examId]`	Timed exam experience
-`/exam/result/\[examAttemptId]`	Exam report
-`/focus`	Focus Mode
-`/mistakes`	Mistake Vault
-`/materials`	Uploaded learning materials
-`/analytics`	Learning analytics
-`/profile`	Learner profile
-`/packages`	Plans and payment flow
-`/teacher`	Teacher tools
-`/admin`	Admin dashboard
-`/admin/payments`	Payment review tools
-`/login`, `/signup`	Authentication
-`/forgot-password`, `/reset-password`	Password recovery
-Getting started
-Prerequisites
-Node.js 18.18 or newer
-npm
-A PostgreSQL database
-A Supabase project for authentication
-At least one supported AI provider key for real AI responses
-1. Install dependencies
+# 🎓 EduVanta
+
+### Learn Smarter. Practise Better. Master More.
+
+**An AI-powered learning platform designed to make learning personalised, adaptive, and measurable.**
+
+[🌐 Website](https://edu-vanta.in) · [🚀 Live AI Tutor](https://eduvanta-eight.vercel.app/tutor)
+
+![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?logo=postgresql)
+![Prisma](https://img.shields.io/badge/ORM-Prisma-2D3748?logo=prisma)
+![Status](https://img.shields.io/badge/Status-Active%20Development-orange)
+
+</div>
+
+---
+
+## 📌 Table of Contents
+
+- [About the Project](#-about-the-project)
+- [The Problem](#-the-problem)
+- [Our Solution](#-our-solution)
+- [Key Features](#-key-features)
+- [How EduVanta Works](#-how-eduvanta-works)
+- [System Architecture](#-system-architecture)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [How It Was Built](#-how-it-was-built)
+- [Application Routes](#-application-routes)
+- [Getting Started](#-getting-started)
+- [Environment Configuration](#-environment-configuration)
+- [Database Setup](#-database-setup)
+- [Testing and Quality Checks](#-testing-and-quality-checks)
+- [Security](#-security)
+- [Deployment](#-deployment)
+- [Future Scope](#-future-scope)
+- [Founder](#-founder)
+
+---
+
+## 💡 About the Project
+
+EduVanta is an AI-powered education platform built to help students understand concepts, practise effectively, identify weaknesses, and organise their preparation.
+
+Traditional learning platforms often focus on delivering content and measuring test scores. EduVanta aims to connect the entire learning journey—from understanding a concept to reviewing mistakes and deciding what to study next.
+
+The platform brings AI tutoring, adaptive practice, study planning, exam simulation, learning analytics, and mistake tracking into one integrated experience.
+
+**Our vision:** Make personalised learning more accessible and help every learner make better use of their study time.
+
+## 🎯 The Problem
+
+Students frequently face challenges such as:
+
+- Not knowing which topic to study next.
+- Repeating mistakes without understanding the underlying concept.
+- Receiving generic explanations that do not address their specific doubts.
+- Following rigid study plans that do not adapt to progress.
+- Preparing for exams without clear insights into topic-wise weaknesses.
+- Using multiple disconnected tools for tutoring, practice, revision, and tracking.
+
+## 🚀 Our Solution
+
+EduVanta connects these activities through a continuous learning cycle.
+
+| Challenge | EduVanta's approach |
+|---|---|
+| Difficulty understanding concepts | Nova AI Tutor |
+| Inconsistent practice | Topic-based adaptive practice |
+| Repeated mistakes | Mistake Vault and targeted revision |
+| Unstructured preparation | Personalised study planner |
+| Exam anxiety and weak feedback | Timed exam simulator and result analysis |
+| Unclear learning progress | Mastery tracking and analytics |
+| Classroom-wide learning gaps | Teacher dashboard and remedial practice |
+
+The goal is not simply to provide answers. It is to help learners understand **what they know, what they need to improve, and what to do next.**
+
+## ✨ Key Features
+
+### 🧠 1. Nova AI Tutor
+
+An AI-powered conversational tutor designed to help students understand concepts and resolve doubts.
+
+- Context-aware tutoring and conversation history.
+- Support for configured AI providers.
+- Retrieval of relevant uploaded learning material when available.
+- Usage quotas and rate limits.
+- Error handling for failed AI requests.
+
+### 🎯 2. Adaptive Practice
+
+A practice experience designed to respond to student performance.
+
+- Topic-based question practice.
+- Adaptive difficulty where supported by the configured workflow.
+- Server-side answer evaluation.
+- Feedback after answer submission.
+- Question generation with validation and fallback behaviour.
+- Keyboard shortcuts for supported question flows.
+
+### 📚 3. Learning Hub
+
+A central place for course and topic learning.
+
+- Course catalogue and enrolment.
+- Topic lessons with explanations and examples.
+- Connections between lessons and practice.
+- PDF, TXT, and Markdown learning-material uploads.
+- Text extraction, chunking, and relevant-content retrieval for supported files.
+
+### 🗓️ 4. Personalised Study Planner
+
+A structured approach to organising learning.
+
+- Study goals, subjects, and availability.
+- Topic prioritisation based on learning needs.
+- Scheduled revision and study sessions.
+- Missed-session rescheduling based on priority.
+
+### 📝 5. Exam Simulator
+
+A timed exam experience with progress tracking.
+
+- Question navigation and mark-for-review.
+- Server-stored answers and resumable attempts where configured.
+- Timed submissions.
+- Score and topic-wise breakdowns.
+- Result analysis and identification of improvement areas.
+
+### 🧩 6. Mistake Vault
+
+A dedicated system for learning from errors.
+
+- Tracks recurring mistakes.
+- Groups mistakes by concept.
+- Supports targeted revision and additional practice.
+- Helps identify concepts that need more attention.
+
+### 📈 7. Mastery and Learning Analytics
+
+Progress indicators that go beyond a single test score.
+
+- Topic-level performance.
+- Accuracy and consistency signals.
+- Revision and practice history.
+- Recommendations for further learning.
+- Exam-readiness indicators that help guide preparation but do not guarantee outcomes.
+
+### 👩‍🏫 8. Teacher Dashboard
+
+Tools to support classroom learning.
+
+- Class-level topic insights.
+- Assignment creation for authorised courses.
+- Identification of commonly weak topics.
+- Remedial practice workflows.
+
+### 🛡️ 9. Admin and Platform Management
+
+- Role-based access for students, teachers, and administrators.
+- Administrative dashboards.
+- User and content management.
+- Payment review workflows.
+- Selected audit records and system-health checks.
+
+### 💳 10. Packages and Payments
+
+- Package and premium-access workflows.
+- UPI payment instructions where enabled.
+- Manual transaction-reference verification.
+- Administrative review before payment approval.
+
+Payment verification should not be interpreted as automatic confirmation from a bank or payment gateway.
+
+---
+
+## 🔄 How EduVanta Works
+
+```mermaid
+flowchart TD
+    A[Student Sets Learning Goals] --> B[Personalised Study Plan]
+    B --> C[Learn a Concept]
+    C --> D[Nova AI Tutor]
+    C --> E[Topic Practice]
+    D --> E
+    E --> F[Answer Evaluation]
+    F --> G[Feedback and Mistake Analysis]
+    G --> H[Mastery and Progress Tracking]
+    H --> I[Next Topic Recommendation]
+    I --> B
+```
+
+### The learning cycle
+
+1. **Set goals:** The learner identifies subjects, topics, and preparation targets.
+2. **Learn:** Lessons and Nova provide explanations and contextual support.
+3. **Practise:** The learner attempts topic-based questions.
+4. **Review:** The platform evaluates responses and highlights mistakes.
+5. **Measure:** Progress signals help identify stronger and weaker concepts.
+6. **Adapt:** The learner uses recommendations and the planner to guide the next session.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TB
+    U[Student / Teacher / Admin]
+    UI[Next.js and React Frontend]
+    API[Next.js Server Routes]
+    AUTH[Supabase Authentication]
+    DB[(PostgreSQL Database)]
+    ORM[Prisma ORM]
+    AI[AI Provider Layer]
+    RET[Material Retrieval]
+    FILES[Uploaded Learning Materials]
+
+    U --> UI
+    UI --> API
+    API --> AUTH
+    API --> ORM
+    ORM --> DB
+    API --> AI
+    FILES --> RET
+    RET --> AI
+    AI --> API
+    API --> UI
+```
+
+### Architecture principles
+
+- **Frontend:** Presents the learning experience and collects user interactions.
+- **Server routes:** Handle application workflows and validate requests.
+- **Authentication:** Supabase manages user authentication and sessions.
+- **Database:** PostgreSQL stores application data.
+- **ORM:** Prisma provides typed database access and schema migrations.
+- **AI integration:** A provider layer connects supported language models to tutoring and generation workflows.
+- **Material retrieval:** Uploaded content can be processed into chunks and retrieved for relevant context.
+
+Actual availability depends on the provider credentials, database configuration, and deployment environment.
+
+## 🧰 Technology Stack
+
+| Technology | Purpose |
+|---|---|
+| Next.js 14 | Application framework and routing |
+| React 18 | User interface |
+| TypeScript | Type-safe application development |
+| Tailwind CSS | Styling |
+| Supabase Auth | Authentication and sessions |
+| PostgreSQL | Persistent application data |
+| Prisma 5 | Database access and migrations |
+| Anthropic API | AI capabilities when configured |
+| OpenAI API | Supported AI workflows and embeddings |
+| Gemini API | Supported AI workflows |
+| Groq | Additional provider support where implemented |
+| Zod | Input and structured-data validation |
+| Recharts | Analytics visualisations |
+| KaTeX | Mathematical notation |
+| React Markdown | Markdown content rendering |
+| Vitest | Automated testing |
+| Vercel | Deployment platform |
+
+## 📂 Project Structure
+
+The following is a conceptual overview of the main application areas. Exact filenames may differ across repository versions.
+
+```text
+Eduvanta/
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+├── public/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── admin/
+│   │   ├── analytics/
+│   │   ├── dashboard/
+│   │   ├── exam/
+│   │   ├── learn/
+│   │   ├── materials/
+│   │   ├── practice/
+│   │   ├── tutor/
+│   │   └── teacher/
+│   ├── components/
+│   ├── lib/
+│   └── ...
+├── tests/
+├── .env.example
+├── package.json
+├── prisma/
+└── README.md
+```
+
+**Note:** This diagram groups the principal areas of the application. Consult the actual repository tree for exact paths and filenames.
+
+## 🛠️ How It Was Built
+
+EduVanta is developed as a full-stack web application. Its major implementation stages are:
+
+### Phase 1 — Product foundation
+
+- Defined the learning problem and core user journeys.
+- Organised the application around student, teacher, and admin experiences.
+- Established the frontend, server, database, and authentication foundations.
+
+### Phase 2 — Data and authentication
+
+- Designed persistent application models in PostgreSQL.
+- Used Prisma for database access and migrations.
+- Integrated Supabase authentication.
+- Added access checks for protected application areas.
+
+### Phase 3 — AI integration
+
+- Connected supported AI providers through application workflows.
+- Added request validation, usage controls, and error handling.
+- Developed tutoring and structured question-generation workflows.
+
+### Phase 4 — Learning intelligence
+
+- Connected practice attempts to feedback and learning records.
+- Added mastery and mistake-tracking workflows.
+- Built study-planning and exam-analysis features.
+
+### Phase 5 — Platform experience
+
+- Developed learner dashboards, teacher tools, admin workflows, and payment review.
+- Added progress analytics and material retrieval.
+- Prepared deployment configuration, security controls, and verification workflows.
+
+These phases describe the implementation approach, not a claim that every feature is fully production-verified.
+
+## 🗺️ Application Routes
+
+| Route | Purpose |
+|---|---|
+| `/` | Landing and entry flow |
+| `/onboarding` | Learner onboarding |
+| `/dashboard` | Learning overview |
+| `/learn` | Learning hub |
+| `/learn/catalog` | Course catalogue |
+| `/learn/[topicId]` | Topic lesson |
+| `/practice` | Practice hub |
+| `/practice/[topicId]` | Topic practice |
+| `/tutor` | Nova AI Tutor |
+| `/planner` | Study planner |
+| `/exam/[examId]` | Exam experience |
+| `/exam/result/[examAttemptId]` | Exam report |
+| `/focus` | Focus Mode |
+| `/mistakes` | Mistake Vault |
+| `/materials` | Learning materials |
+| `/analytics` | Learning analytics |
+| `/profile` | Learner profile |
+| `/packages` | Packages and payment flow |
+| `/teacher` | Teacher dashboard |
+| `/admin` | Admin dashboard |
+| `/login` | Login |
+| `/signup` | Registration |
+
+These routes describe the intended application areas; route availability should be confirmed against the deployed version.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18.18 or newer.
+- npm.
+- PostgreSQL database.
+- Supabase project.
+- API key for at least one supported AI provider.
+
+### 1. Clone the repository
+
+```bash
+git clone YOUR_REPOSITORY_URL
+cd Eduvanta
+```
+
+Replace `YOUR_REPOSITORY_URL` with the actual Git repository URL.
+
+### 2. Install dependencies
+
 ```bash
 npm install
 ```
-2. Configure environment variables
+
+### 3. Configure environment variables
+
+Copy the example file:
+
 ```bash
 cp .env.example .env
 ```
+
 On Windows PowerShell:
+
 ```powershell
 Copy-Item .env.example .env
 ```
-Fill in the values for your own development environment. Do not commit `.env` or paste secret keys into issues, screenshots, or public repositories.
-3. Configure Supabase Auth
-Create or open your Supabase project.
-Enable Email authentication.
-Add your local and production callback URLs in Supabase Authentication URL Configuration.
-Set the Supabase URL and anon key in `.env`.
-4. Prepare the database
-Ensure PostgreSQL is reachable and the `vector` extension is available if you want pgvector-based material retrieval. Then run:
+
+Populate the required values in `.env`. Never commit real credentials.
+
+### 4. Generate Prisma Client
+
 ```bash
 npx prisma generate
+```
+
+### 5. Apply database migrations
+
+```bash
 npx prisma migrate deploy
 ```
-For a brand-new local database where you are actively developing schema changes, use the Prisma workflow appropriate to that environment. Do not reset or push schema changes to a production database without reviewing the migration plan.
-Optional local/staging seed:
-```bash
-npm run db:seed
-```
-Seeded records are intended for development/staging; review the seed script before using it with any database containing real user data.
-5. Start the development server
+
+Use the appropriate development migration workflow for a fresh local database. Review migrations before applying them to production.
+
+### 6. Start the application
+
 ```bash
 npm run dev
 ```
-Open http://localhost:3000.
-6. Configure AI
-Set `AI\_PROVIDER` to the provider you want to use and add its corresponding key. The project includes a development mock fallback when provider credentials are absent in development; production should have valid credentials configured.
-For semantic retrieval of uploaded material, configure `OPENAI\_API\_KEY` for embeddings. If embeddings are unavailable, the application has a local lexical fallback, so retrieval behaviour may differ.
-Environment variables
-Use `.env.example` as the source of truth; it documents the variables currently supported by the codebase.
-Variable	Purpose
-`DATABASE\_URL`	PostgreSQL connection used by the application
-`DIRECT\_URL`	Direct PostgreSQL connection for migration/admin operations where needed
-`NEXT\_PUBLIC\_SUPABASE\_URL`	Supabase project URL
-`NEXT\_PUBLIC\_SUPABASE\_ANON\_KEY`	Supabase public/anon key
-`AUTH\_SECRET`	Application authentication-related secret
-`AI\_PROVIDER`	Selects the AI provider
-`ANTHROPIC\_API\_KEY`	Anthropic API access
-`OPENAI\_API\_KEY`	OpenAI access; also used for embeddings when configured
-`GEMINI\_API\_KEY`	Gemini API access
-`GROQ\_API\_KEY`	Groq credentials where enabled by the configured provider implementation
-`NEXT\_PUBLIC\_EDUVANTA\_UPI\_ID`	UPI ID displayed in the payment flow
-`CRON\_SECRET`	Protects scheduled notification endpoint access
-`UPSTASH\_REDIS\_REST\_URL`	Shared Redis endpoint for distributed rate limiting
-`UPSTASH\_REDIS\_REST\_TOKEN`	Shared Redis authentication token
-`NOVA\_FREE\_TOKENS`, `NOVA\_STARTER\_TOKENS`, `NOVA\_PRO\_TOKENS`, `NOVA\_PREMIUM\_TOKENS`	Nova token quota settings
-`CSP\_MODE`	Controls the Content Security Policy rollout mode
-`DEV\_UNLOCK\_PASSWORD`, `DEV\_MEGA\_UNLOCK\_PASSWORD`	Optional developer-only unlock controls; keep unset in production
-Some settings are optional or only relevant to specific features. Check comments in `.env.example` and the deployment guide before configuring production.
-Database setup
-EduVanta uses Prisma migrations to evolve its PostgreSQL schema. The repository includes migrations for learning data, packages/payments, exam curriculum, mastery snapshots, performance indexes, Nova billing, material content hashes, payment credits, audit logs, and related features.
-Typical production migration flow:
+
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 🔐 Environment Configuration
+
+Use `.env.example` as the authoritative list of variables supported by the current repository.
+
+Common configuration includes:
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | Application database connection |
+| `DIRECT_URL` | Direct database connection where required |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public key |
+| `AUTH_SECRET` | Application secret where required |
+| `AI_PROVIDER` | Configured AI provider |
+| `ANTHROPIC_API_KEY` | Anthropic API access |
+| `OPENAI_API_KEY` | OpenAI and supported embedding workflows |
+| `GEMINI_API_KEY` | Gemini API access |
+| `GROQ_API_KEY` | Groq access where implemented |
+| `CRON_SECRET` | Scheduled endpoint protection |
+| `UPSTASH_REDIS_REST_URL` | Shared rate-limiting service |
+| `UPSTASH_REDIS_REST_TOKEN` | Rate-limiting authentication |
+| `NEXT_PUBLIC_EDUVANTA_UPI_ID` | UPI identifier for the payment flow |
+
+Not every variable is mandatory for every deployment. Check `.env.example` and the deployment documentation.
+
+## 🗄️ Database Setup
+
+EduVanta uses PostgreSQL with Prisma-managed schema migrations.
+
+Typical production preparation:
+
 ```bash
 npx prisma generate
 npx prisma migrate deploy
 ```
-Do not use `prisma migrate reset` on a production database. Review new migrations and back up important data before applying schema changes.
-Useful commands
-Command	Description
-`npm run dev`	Start the local development server
-`npm run build`	Create a production build
-`npm run start`	Serve the production build
-`npm run lint`	Run ESLint
-`npm run typecheck`	Run TypeScript checks
-`npm test`	Run the Vitest test suite
-`npm run verify`	Run lint, typecheck, tests, and build
-`npm run db:generate`	Generate Prisma Client
-`npm run db:migrate`	Run the development migration workflow
-`npm run db:seed`	Seed development/staging data
-`npm run db:studio`	Open Prisma Studio
-`npm run db:fill-bank`	Populate supported built-in question banks
-Before releasing, run:
+
+Before migrating a live database:
+
+- Review pending migrations.
+- Back up important data.
+- Confirm database credentials and permissions.
+- Verify any required PostgreSQL extensions.
+
+**Never run `prisma migrate reset` on a production database.**
+
+## 🧪 Testing and Quality Checks
+
+Useful commands, if defined in the repository's `package.json`:
+
 ```bash
-npm ci
-npx prisma generate
-npx prisma migrate deploy
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+If the repository provides a combined verification script:
+
+```bash
 npm run verify
 ```
-Run these commands in a normal networked development environment or CI. A successful local build should be confirmed in the actual deployment environment as well.
-Architecture and documentation
-The repository contains additional implementation and operations documentation:
-`ARCHITECTURE.md` — system design and core flows
-`API.md` — API route reference
-`DATABASE.md` — database model and data relationships
-`DEPLOYMENT.md` — environment and deployment guidance
-`SECURITY.md` — authentication, authorisation, validation, and security considerations
-`AUDIT.md` — audit and review notes
-`PRODUCTION\_HARDENING.md` — production hardening checklist
-`PRODUCTION\_UPGRADE\_SUMMARY.md` — recent platform upgrades
-`PAYMENT\_SETUP\_UPI.md` — UPI payment setup notes
-`DEV\_MODE\_AND\_QUOTA.md` — development mode and Nova quota details
-Security and responsible use
-Supabase validates sessions; server routes enforce authentication and role/ownership checks.
-API request bodies and generated structured content are validated before being trusted.
-Correct answers are checked on the server; answer keys are not sent to learners during an active practice or exam.
-AI operations have per-user rate limits. Configure Upstash Redis for shared rate limiting across serverless instances.
-Uploaded files are type/size validated, and PDF parsing includes checks for risky embedded content; this is not a substitute for a full malware-scanning service.
-Configure strong secrets, least-privilege access, and production-safe environment variables.
-Never expose database URLs, service-role keys, AI keys, payment credentials, or developer unlock passwords.
-Review the security and deployment documents before exposing a new public production deployment.
-AI-generated explanations and recommendations can be wrong. Learners should verify important academic information against trusted course materials. Exam-readiness indicators are estimates, not promises of results.
-Deployment checklist
-[ ] Set production environment variables in the hosting provider.
-[ ] Use production Supabase Auth callback/redirect URLs.
-[ ] Confirm PostgreSQL connectivity and required extensions.
-[ ] Apply reviewed migrations with `npx prisma migrate deploy`.
-[ ] Configure a real AI provider and its API key.
-[ ] Configure Upstash Redis for shared production rate limits.
-[ ] Set `CRON\_SECRET` and verify the scheduled notification configuration.
-[ ] Set the correct UPI ID only if enabling the payment flow.
-[ ] Keep developer unlock passwords unset in production unless deliberately required and secured.
-[ ] Run `npm run verify` in CI or a networked environment.
-[ ] Smoke-test authentication, tutor, practice, exams, uploads, payment review, and role-protected routes.
-[ ] Check hosting logs and `/api/health` after deployment.
-Project status
-EduVanta is an actively evolving early-stage product. This README describes the capabilities and configuration represented in the current repository; external providers, credentials, database migrations, scheduled jobs, and production settings still need to be configured and verified for each deployment.
+
+Check `package.json` for the exact scripts available in your checkout.
+
+## 🛡️ Security
+
+EduVanta's security considerations include:
+
+- Authentication for protected user experiences.
+- Server-side authorisation and ownership checks.
+- Request and structured-data validation.
+- Rate limiting for supported AI operations.
+- Controlled access to uploaded learning material.
+- Server-side answer evaluation.
+- Protected environment variables and API credentials.
+- Auditing for selected sensitive administrative actions.
+
+Before production deployment, verify the implementation and configuration of these controls.
+
+AI-generated content may contain errors. Students should verify important academic information against trusted course materials.
+
+## 🌍 Deployment
+
+EduVanta can be deployed to Vercel or a compatible Node.js hosting environment.
+
+Before release:
+
+- Configure production environment variables.
+- Set the correct authentication redirect URLs.
+- Confirm database connectivity and migrations.
+- Configure the selected AI provider.
+- Configure shared rate limiting if required.
+- Verify scheduled jobs and protected endpoints.
+- Test authentication, tutoring, practice, exams, uploads, and role permissions.
+- Inspect production logs and the configured health endpoint.
+
+Live project: [edu-vanta.in](https://edu-vanta.in)
+
+## 🔮 Future Scope
+
+Potential directions for continued development include:
+
+- More detailed learner-personalisation models.
+- Additional curricula and question banks.
+- Better explanations tailored to recurring misconceptions.
+- Expanded educator analytics.
+- More accessible multilingual learning experiences.
+- Additional integrations for assessments and learning resources.
+
+These are potential improvements, not promises of features that already exist.
+
+## 👨‍💻 Founder
+
+**Raghav Mittal**  
+Founder and developer of EduVanta.
+
+EduVanta is an early-stage project focused on making learning more personalised through AI, structured practice, and actionable feedback.
+
+🌐 Website: [edu-vanta.in](https://edu-vanta.in)
+
 ---
-Made with a focus on more personalised, evidence-informed learning.
+
+<div align="center">
+
+**EduVanta — A better way to understand what to learn next.**
+
+*Built to make learning more personalised, structured, and measurable.*
+
+</div>
